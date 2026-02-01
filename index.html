@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <h1 id="className">BPT Ist </h1>
+            <div class="week-indicator">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="currentWeek">Week 3</span>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="last-update">
+                <i class="fas fa-sync-alt"></i>
+                Updated: <span id="updateTime">Just now</span>
+            </div>
+            <button id="refreshBtn" class="btn-refresh">
+                <i class="fas fa-redo"></i> Refresh
+            </button>
+            <button id="teacherToggle" class="btn-teacher">
+                <i class="fas fa-chalkboard-teacher"></i> Teacher Mode
+            </button>
+        </div>
+    </header>
+
+    <!-- PIN Input (Hidden by default) -->
+    <div id="pinModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-lock"></i> Teacher Access</h3>
+            <input type="password" id="pinInput" placeholder="Enter 4-digit PIN" maxlength="4">
+            <button id="pinSubmit">Enter Dashboard</button>
+            <p class="hint">PIN was set when creating this dashboard</p>
+        </div>
+    </div>
+
+    <!-- Student Submission Form (Default View) -->
+    <main id="studentView">
+        <div class="container">
+            <div class="student-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-upload"></i> Submit Your Assignment</h2>
+                    <p>Share your video link with the class</p>
+                </div>
+                
+                <form id="submissionForm">
+                    <div class="form-group">
+                        <label for="studentName">
+                            <i class="fas fa-user"></i> Your Full Name
+                        </label>
+                        <input type="text" id="studentName" placeholder="e.g. Alex Johnson" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="groupSelect">
+                            <i class="fas fa-users"></i> Select Your Group
+                        </label>
+                        <div class="group-buttons">
+                            <button type="button" class="group-btn" data-group="1">BPT-1</button>
+                            <button type="button" class="group-btn" data-group="2">BPT-2</button>
+                            <button type="button" class="group-btn" data-group="3">BPT-3</button>
+                            <button type="button" class="group-btn" data-group="4">BPT-4</button>
+                        </div>
+                        <input type="hidden" id="selectedGroup" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoLink">
+                            <i class="fas fa-video"></i> Video Link
+                        </label>
+                        <input type="url" id="videoLink" 
+                               placeholder="https://drive.google.com/file/d/... or YouTube link" 
+                               required>
+                        <small class="hint">Paste any public video link (Google Drive, YouTube, etc.)</small>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> Submit Assignment
+                    </button>
+                </form>
+                
+                <!-- Student's Personal History -->
+                <div class="student-history">
+                    <h3><i class="fas fa-history"></i> Your Submission History</h3>
+                    <div id="personalHistory">
+                        <p class="empty-state">No submissions yet. Submit your first assignment!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Teacher Dashboard (Hidden by default) -->
+    <main id="teacherView" class="hidden">
+        <div class="container">
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="totalStudents">30</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card submitted">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="submittedCount">23</div>
+                        <div class="stat-label">Submitted</div>
+                    </div>
+                    <div class="stat-percent" id="submittedPercent">77%</div>
+                </div>
+                
+                <div class="stat-card this-week">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="thisWeekCount">15</div>
+                        <div class="stat-label">This Week</div>
+                    </div>
+                    <div class="stat-percent" id="thisWeekPercent">50%</div>
+                </div>
+                
+                <div class="stat-card late">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="lateCount">2</div>
+                        <div class="stat-label">Late</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Progress Bars -->
+            <div class="groups-section">
+                <h2><i class="fas fa-layer-group"></i> Group Progress</h2>
+                <div class="groups-grid">
+                    <div class="group-progress" data-group="1">
+                        <div class="group-header">
+                            <span class="group-name">Group 1</span>
+                            <span class="group-count" id="group1Count">8/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 80%"></div>
+                        </div>
+                        <div class="group-status" id="group1Status">✅ Good progress</div>
+                    </div>
+                    
+                    <div class="group-progress" data-group="2">
+                        <div class="group-header">
+                            <span class="group-name">Group 2</span>
+                            <span class="group-count" id="group2Count">5/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%"></div>
+                        </div>
+                        <div class="group-status" id="group2Status">⚠️ Needs attention</div>
+                    </div>
+                    
+                    <div class="group-progress" data-group="3">
+                        <div class="group-header">
+                            <span class="group-name">Group 3</span>
+                            <span class="group-count" id="group3Count">7/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
+                        <div class="group-status" id="group3Status">✅ On track</div>
+                    </div>
+                    
+                    <div class="group-progress" data-group="4">
+                        <div class="group-header">
+                            <span class="group-name">Group 4</span>
+                            <span class="group-count" id="group4Count">3/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%"></div>
+                        </div>
+                        <div class="group-status" id="group4Status">❌ Behind schedule</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student List Table -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h2><i class="fas fa-list"></i> Student Submissions</h2>
+                    <button id="exportBtn" class="btn-export">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Group</th>
+                                <th>Status</th>
+                                <th>Video</th>
+                                <th>Submitted On</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionsTable">
+                            <!-- Data will be inserted by JavaScript -->
+                            <tr>
+                                <td>Alice Chen</td>
+                                <td><span class="group-badge group-1">1</span></td>
+                                <td><span class="status on-time">✅ On time</span></td>
+                                <td><a href="#" class="video-link"><i class="fas fa-play"></i> Watch</a></td>
+                                <td>Mar 15, 2024</td>
+                            </tr>
+                            <tr>
+                                <td>Bob Smith</td>
+                                <td><span class="group-badge group-1">1</span></td>
+                                <td><span class="status early">✅ Early</span></td>
+                                <td><a href="#" class="video-link"><i class="fas fa-play"></i> Watch</a></td>
+                                <td>Mar 14, 2024</td>
+                            </tr>
+                            <tr>
+                                <td>Charlie Brown</td>
+                                <td><span class="group-badge group-2">2</span></td>
+                                <td><span class="status late">⚠️ 2 days late</span></td>
+                                <td><a href="#" class="video-link"><i class="fas fa-play"></i> Watch</a></td>
+                                <td>Mar 17, 2024</td>
+                            </tr>
+                            <tr>
+                                <td>Diana Prince</td>
+                                <td><span class="group-badge group-3">3</span></td>
+                                <td><span class="status missing">❌ Missing</span></td>
+                                <td class="no-video">-</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Settings Panel (Collapsible) -->
+            <div class="settings-section">
+                <button id="settingsToggle" class="settings-toggle">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                
+                <div id="settingsPanel" class="settings-panel hidden">
+                    <h3><i class="fas fa-sliders-h"></i> Dashboard Settings</h3>
+                    
+                    <div class="settings-group">
+                        <label for="classNameInput">Class Name</label>
+                        <input type="text" id="classNameInput" value="Class 10A">
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label for="groupNames">Group Names (comma separated)</label>
+                        <input type="text" id="groupNames" value="Group 1, Group 2, Group 3, Group 4">
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label>Share Link</label>
+                        <div class="share-link">
+                            <input type="text" id="shareUrl" value="https://dashboard.com/10A" readonly>
+                            <button id="copyLinkBtn" class="btn-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <small>Share this link with students for submissions</small>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label for="teacherPin">Teacher PIN</label>
+                        <input type="password" id="teacherPin" value="1234" maxlength="4">
+                        <small>4-digit PIN to access teacher dashboard</small>
+                    </div>
+                    
+                    <button id="saveSettings" class="btn-save">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Updating dashboard...</p>
+    </div>
+
+    <!-- Confirmation Toast -->
+    <div id="toast" class="toast hidden">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
